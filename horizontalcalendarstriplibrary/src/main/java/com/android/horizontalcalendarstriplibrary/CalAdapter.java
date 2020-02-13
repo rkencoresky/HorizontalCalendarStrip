@@ -90,6 +90,7 @@ public class CalAdapter extends RecyclerView.Adapter<CalAdapter.MyViewHolder> {
                     e.printStackTrace();
                 }
                 lastDaySelected = dayModelList.get(pos);
+                notifyDataSetChanged();
             }
         });
     }
