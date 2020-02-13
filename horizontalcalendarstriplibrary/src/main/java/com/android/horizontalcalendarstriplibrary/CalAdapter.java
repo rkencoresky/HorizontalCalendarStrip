@@ -51,6 +51,9 @@ public class CalAdapter extends RecyclerView.Adapter<CalAdapter.MyViewHolder> {
             } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
                 e.printStackTrace();
             }
+        } else if (dayModelList.get(position).equals(lastDaySelected)) {
+            holder.date.setBackground(context.getResources().getDrawable(R.drawable.background_selected_day));
+            holder.date.setTextColor(context.getResources().getColor(android.R.color.black));
         }
 
         holder.day.setText(dayModelList.get(position).day);
