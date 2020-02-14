@@ -25,6 +25,7 @@ import java.util.Date;
 
 public class HorizontalCalendarView extends LinearLayout {
 
+    private static final String TAG = "HorizontalCalendarView";
     ImageView leftImage;
     ImageView rightImage;
     View rootView;
@@ -63,6 +64,7 @@ public class HorizontalCalendarView extends LinearLayout {
         leftImage = findViewById(R.id.left_image_view);
         rightImage = findViewById(R.id.right_image_view);
         loadNextPage();
+
         leftImage.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,6 +75,7 @@ public class HorizontalCalendarView extends LinearLayout {
                 }
             }
         });
+
         rightImage.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -204,15 +207,22 @@ public class HorizontalCalendarView extends LinearLayout {
             for (int i = 0; i < 30; i++) {
                 cal.add(Calendar.DAY_OF_WEEK, 1);
                 String nextDate = dateFormat.format(cal.getTime());
-                DayDateMonthYearModel currentDayMode = new DayDateMonthYearModel();
+                final DayDateMonthYearModel currentDayMode = new DayDateMonthYearModel();
                 String[] partsNextDate = nextDate.split("-");
                 currentDayMode.month = partsNextDate[0];
                 currentDayMode.date = partsNextDate[4];
                 currentDayMode.day = partsNextDate[1];
                 currentDayMode.year = partsNextDate[2];
+                currentDayMode.monthNumeric = partsNextDate[3];
                 currentDayMode.isToday = false;
                 isLoading = false;
-                calAdapter.add(currentDayMode);
+//                calAdapter.add(currentDayMode);
+                recyclerView.post(new Runnable() {
+                    public void run() {
+                        currentDayModelList.add(currentDayMode);
+                        calAdapter.notifyItemInserted(currentDayModelList.size() - 1);
+                    }
+                });
             }
         }
     }
@@ -262,7 +272,6 @@ public class HorizontalCalendarView extends LinearLayout {
         this.toCallBack = toCallBack;
         calAdapter.setCallback(toCallBack);
         Date date = new Date();
-        //System.out.println("Day 1"+" "+dateFormat.format(date));
         DayDateMonthYearModel currentDayModel = new DayDateMonthYearModel();
         String currentDate = dateFormat.format(date);
         String[] partsDate = currentDate.split("-");
@@ -272,6 +281,7 @@ public class HorizontalCalendarView extends LinearLayout {
         currentDayModel.year = partsDate[2];
         currentDayModel.monthNumeric = partsDate[3];
         currentDayModel.isToday = true;
+
         try {
             CallBack cb = new CallBack(toCallBack, "updateMonthOnScroll");
             cb.invoke(currentDayModel);
@@ -279,5 +289,6 @@ public class HorizontalCalendarView extends LinearLayout {
             e.printStackTrace();
         }
     }
+
 
 }

@@ -13,6 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 
+@SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
 public class CalAdapter extends RecyclerView.Adapter<CalAdapter.MyViewHolder> {
 
     private Context context;
@@ -20,13 +21,14 @@ public class CalAdapter extends RecyclerView.Adapter<CalAdapter.MyViewHolder> {
     private DayDateMonthYearModel lastDaySelected;
 
     private ArrayList<DayDateMonthYearModel> dayModelList;
-    private TextView clickedTextView = null;
-    private ArrayList<TextView> dateArrayList = new ArrayList<>();
-    private ArrayList<TextView> dayArrayList = new ArrayList<>();
+    private ArrayList<TextView> dateArrayList;
+    private ArrayList<TextView> dayArrayList;
 
     CalAdapter(Context context, ArrayList<DayDateMonthYearModel> dayModelList) {
         this.context = context;
         this.dayModelList = dayModelList;
+        dateArrayList = new ArrayList<>();
+        dayArrayList = new ArrayList<>();
     }
 
     void setCallback(Object toCallBack) {
@@ -41,55 +43,30 @@ public class CalAdapter extends RecyclerView.Adapter<CalAdapter.MyViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final MyViewHolder holder, final int position) {
         if (dayModelList.get(position).isToday) {
             holder.date.setBackground(context.getResources().getDrawable(R.drawable.currect_date_background));
             holder.date.setTextColor(context.getResources().getColor(R.color.white));
-            try {
-                CallBack cb = new CallBack(toCallBack, "newDateSelected");
-                cb.invoke(dayModelList.get(position));
-            } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
         } else if (dayModelList.get(position).equals(lastDaySelected)) {
             holder.date.setBackground(context.getResources().getDrawable(R.drawable.background_selected_day));
             holder.date.setTextColor(context.getResources().getColor(android.R.color.black));
         }
-
         holder.day.setText(dayModelList.get(position).day);
         holder.date.setText(dayModelList.get(position).date);
         holder.date.setTag(position);
         dateArrayList.add(holder.date);
         dayArrayList.add(holder.day);
+
         holder.date.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                int pos = Integer.valueOf(v.getTag().toString());
-                if (clickedTextView == null) {
-                    clickedTextView = (TextView) v;
-                    clickedTextView.setBackground(context.getResources().getDrawable(R.drawable.background_selected_day));
-                    clickedTextView.setTextColor(context.getResources().getColor(android.R.color.black));
-                } else {
-//                    if(!dayModelList.get(pos).isToday) {
-                    if (lastDaySelected != null && lastDaySelected.isToday) {
-                        clickedTextView.setBackground(context.getResources().getDrawable(R.drawable.currect_date_background));
-                        clickedTextView.setTextColor(context.getResources().getColor(R.color.white));
-                    } else {
-                        clickedTextView.setBackground(null);
-                        clickedTextView.setTextColor(context.getResources().getColor(android.R.color.black));
-                    }
-                    clickedTextView = (TextView) v;
-                    clickedTextView.setBackground(context.getResources().getDrawable(R.drawable.background_selected_day));
-                    clickedTextView.setTextColor(context.getResources().getColor(android.R.color.black));
-                }
-
+            public void onClick(View view) {
+                lastDaySelected = dayModelList.get(position);
                 try {
                     CallBack cb = new CallBack(toCallBack, "newDateSelected");
-                    cb.invoke(dayModelList.get(pos));
+                    cb.invoke(lastDaySelected);
                 } catch (InvocationTargetException | IllegalAccessException | NoSuchMethodException e) {
                     e.printStackTrace();
                 }
-                lastDaySelected = dayModelList.get(pos);
                 notifyDataSetChanged();
             }
         });
@@ -100,10 +77,11 @@ public class CalAdapter extends RecyclerView.Adapter<CalAdapter.MyViewHolder> {
         return dayModelList.size();
     }
 
-    void add(DayDateMonthYearModel DDMYModel) {
+   /* void add(DayDateMonthYearModel DDMYModel) {
         dayModelList.add(DDMYModel);
         notifyItemInserted(dayModelList.size() - 1);
-    }
+    }*/
+
 
     @Override
     public void onViewAttachedToWindow(MyViewHolder holder) {
